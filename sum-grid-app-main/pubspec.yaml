@@ -7,9 +7,9 @@ environment:
   sdk: ">=3.3.0 <4.0.0"
 
 dependencies:
-url_launcher: ^6.2.5
   flutter:
     sdk: flutter
+  url_launcher: ^6.2.5
 
 flutter:
   uses-material-design: true
