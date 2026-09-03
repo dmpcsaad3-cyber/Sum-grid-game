@@ -1,4 +1,4 @@
-package com.example.sum_grid_app
+package com.sumgrid.game
 
 import io.flutter.embedding.android.FlutterActivity
 
