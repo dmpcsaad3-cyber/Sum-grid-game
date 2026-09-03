@@ -1,68 +1,150 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart'; // sirf ye wala rakho
+import 'package:url_launcher/url_launcher.dart';
 
-void main() {
-  runApp(const MyApp()); // MobileAds hata diya
-}
+void main() => runApp(const SumGridApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class SumGridApp extends StatelessWidget {
+  const SumGridApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Sum Grid',
+      title: 'Sum Grid Game',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(),
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: const GameScreen(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
+class GameScreen extends StatefulWidget {
+  const GameScreen({super.key});
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<GameScreen> createState() => _GameScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
-  
-  // Adstaree link kholne wala function
-  Future<void> _openAdstaree() async {
-    final Uri url = Uri.parse('https://mahadplanner192.my.canva.site/');
+class _GameScreenState extends State<GameScreen> {
+  int level = 1;
+  int score = 0;
+  int num1 = 0;
+  int num2 = 0;
+  String operation = '+';
+  int correctAnswer = 0;
+  List<int> options = [];
+  final Random random = Random();
+  final String adstareeLink = 'https://ner192.my.canva.site'; // اپنا اصل Adstaree link یہاں لگا دینا
+
+  @override
+  void initState() {
+    super.initState();
+    generateQuestion();
+  }
+
+  void generateQuestion() {
+    int maxNum = 5 + (level * 3);
+    num1 = random.nextInt(maxNum) + 1;
+    num2 = random.nextInt(maxNum) + 1;
+    List<String> ops = ['+', '-', '×', '÷'];
+    operation = ops[random.nextInt(ops.length)];
+
+    if (operation == '-') {
+      if (num1 < num2) {
+        int temp = num1; num1 = num2; num2 = temp;
+      }
+      correctAnswer = num1 - num2;
+    } else if (operation == '×') {
+      num1 = random.nextInt(5 + level) + 1;
+      num2 = random.nextInt(5 + level) + 1;
+      correctAnswer = num1 * num2;
+    } else if (operation == '÷') {
+      correctAnswer = random.nextInt(5 + level) + 1;
+      num2 = random.nextInt(5 + level) + 1;
+      num1 = correctAnswer * num2;
+    } else {
+      correctAnswer = num1 + num2;
+    }
+
+    options = [correctAnswer];
+    while (options.length < 4) {
+      int wrong = correctAnswer + random.nextInt(10) - 5;
+      if (wrong >= 0 &&!options.contains(wrong)) options.add(wrong);
+    }
+    options.shuffle();
+    setState(() {});
+  }
+
+  void checkAnswer(int selected) {
+    if (selected == correctAnswer) {
+      score += 10 * level;
+      if (score >= level * 100) {
+        level++;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('🎉 Level Up! Now Level $level'), backgroundColor: Colors.green),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Correct! +Points'), backgroundColor: Colors.blue, duration: Duration(milliseconds: 500)),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Wrong! Correct: $correctAnswer'), backgroundColor: Colors.red),
+      );
+    }
+    generateQuestion();
+  }
+
+  Future<void> _launchAdstaree() async {
+    final Uri url = Uri.parse(adstareeLink);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw 'Could not launch $url';
+      throw Exception('Could not launch $url');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sum Grid App')),
-      body: Column(
-        children: [
-          Expanded(
-            child: Center(
-              child: Text(
-                'App Content Here',
-                style: TextStyle(fontSize: 24),
-              ),
+      appBar: AppBar(title: Text('Level: $level | Score: $score'), centerTitle: true),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text('Solve:', style: TextStyle(fontSize: 22, color: Colors.grey[700])),
+            Container(
+              padding: const EdgeInsets.all(30),
+              decoration: BoxDecoration(color: Colors.orange.shade100, borderRadius: BorderRadius.circular(20)),
+              child: Text('$num1 $operation $num2 =?', 
+                style: const TextStyle(fontSize: 45, fontWeight: FontWeight.bold)),
             ),
-          ),
-          // Banner ki jaga ye button
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: ElevatedButton(
-              onPressed: _openAdstaree,
+            GridView.builder(
+              shrinkWrap: true,
+              itemCount: 4,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 15, mainAxisSpacing: 15, childAspectRatio: 1.8),
+              itemBuilder: (context, index) {
+                return ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    textStyle: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () => checkAnswer(options[index]),
+                  child: Text('${options[index]}'),
+                );
+              },
+            ),
+            ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
-                minimumSize: Size(double.infinity, 50),
+                padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
-              child: Text('Support Us - Adstaree', style: TextStyle(fontSize: 18, color: Colors.white)),
+              onPressed: _launchAdstaree,
+              icon: const Icon(Icons.favorite, color: Colors.white),
+              label: const Text('Support Us - Adstaree', style: TextStyle(fontSize: 18, color: Colors.white)),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
