@@ -1,12 +1,14 @@
 workflows:
   android-release:
-    name: Android Release
+    name: Build Android APK
     instance_type: mac_mini_m2
+    max_build_duration: 60
     environment:
-      flutter: 3.24.5
+      flutter: 3.19.0
     scripts:
-      - flutter clean
-      - flutter pub get
-      - flutter build apk --release
+      - name: Get dependencies
+        script: cd sum-grid-app-main && flutter pub get
+      - name: Build APK
+        script: cd sum-grid-app-main && flutter build apk --release
     artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+      - sum-grid-app-main/build/app/outputs/flutter-apk/app-release.apk
