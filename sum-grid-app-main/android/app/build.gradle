@@ -44,4 +44,21 @@ android {
         applicationId "com.sumgrid.game"
         minSdkVersion 21
         targetSdkVersion 34
-        version
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+}
