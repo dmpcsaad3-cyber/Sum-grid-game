@@ -1,22 +1,15 @@
 workflows:
   android-release:
-    name: Build Android APK
+    name: Build APK
     instance_type: mac_mini_m2
     max_build_duration: 60
+    working_directory: sum-grid-app-main  # <- یہ لائن سب سے اہم ہے
     environment:
       flutter: 3.19.0
     scripts:
-      - name: Unzip source code
-        script: |
-          unzip sum-grid-app-main.zip -d app_source
-          cd app_source
-      - name: Install dependencies
-        script: |
-          cd app_source
-          flutter pub get
+      - name: Get Flutter dependencies
+        script: flutter pub get
       - name: Build APK
-        script: |
-          cd app_source  
-          flutter build apk --release
+        script: flutter build apk --release
     artifacts:
-      - app_source/build/app/outputs/flutter-apk/app-release.apk
+      - build/app/outputs/flutter-apk/app-release.apk
