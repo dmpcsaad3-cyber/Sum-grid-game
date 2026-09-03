@@ -36,3 +36,4 @@ compileOptions {
 kotlinOptions {
     jvmTarget = '1.8'
 }
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.4-all.zip
