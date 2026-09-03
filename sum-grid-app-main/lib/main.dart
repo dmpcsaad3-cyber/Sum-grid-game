@@ -26,13 +26,16 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   int level = 1;
   int score = 0;
+  int questionCount = 0;
   int num1 = 0;
   int num2 = 0;
   String operation = '+';
   int correctAnswer = 0;
   List<int> options = [];
   final Random random = Random();
-  final String adstareeLink = 'https://ner192.my.canva.site'; // اپنا اصل Adstaree link یہاں لگا دینا
+
+  // 👇 آپ کا Adsterra SmartLink
+  final String smartLink = 'https://www.profitableratecpmnetwork.com/sha5evn4?key=8ea89c1a9a6b1a5092ae29b2c8b2ba57';
 
   @override
   void initState() {
@@ -74,6 +77,8 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void checkAnswer(int selected) {
+    questionCount++;
+
     if (selected == correctAnswer) {
       score += 10 * level;
       if (score >= level * 100) {
@@ -91,11 +96,19 @@ class _GameScreenState extends State<GameScreen> {
         SnackBar(content: Text('Wrong! Correct: $correctAnswer'), backgroundColor: Colors.red),
       );
     }
+
+    // 👇 ہر 2 سوال بعد SmartLink auto کھلے گا
+    if (questionCount % 2 == 0) {
+      Future.delayed(const Duration(seconds: 1), () {
+        _launchSmartLink();
+      });
+    }
+
     generateQuestion();
   }
 
-  Future<void> _launchAdstaree() async {
-    final Uri url = Uri.parse(adstareeLink);
+  Future<void> _launchSmartLink() async {
+    final Uri url = Uri.parse(smartLink);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $url');
     }
@@ -104,7 +117,7 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Level: $level | Score: $score'), centerTitle: true),
+      appBar: AppBar(title: Text('Level: $level | Score: $score'), centerTitle: true, backgroundColor: Colors.deepPurple),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -113,20 +126,27 @@ class _GameScreenState extends State<GameScreen> {
             Text('Solve:', style: TextStyle(fontSize: 22, color: Colors.grey[700])),
             Container(
               padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(color: Colors.orange.shade100, borderRadius: BorderRadius.circular(20)),
-              child: Text('$num1 $operation $num2 =?', 
+              decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(20)),
+              child: Text('$num1 $operation $num2 =?',
                 style: const TextStyle(fontSize: 45, fontWeight: FontWeight.bold)),
             ),
             GridView.builder(
               shrinkWrap: true,
               itemCount: 4,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 15, mainAxisSpacing: 15, childAspectRatio: 1.8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 1.8
+              ),
               itemBuilder: (context, index) {
                 return ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
+                    backgroundColor: Colors.orange, // روشن نارنجی بٹن
+                    foregroundColor: Colors.white, // سفید نمبر
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    textStyle: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    elevation: 6,
+                    textStyle: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () => checkAnswer(options[index]),
                   child: Text('${options[index]}'),
@@ -139,9 +159,9 @@ class _GameScreenState extends State<GameScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
-              onPressed: _launchAdstaree,
+              onPressed: _launchSmartLink,
               icon: const Icon(Icons.favorite, color: Colors.white),
-              label: const Text('Support Us - Adstaree', style: TextStyle(fontSize: 18, color: Colors.white)),
+              label: const Text('Support Us', style: TextStyle(fontSize: 18, color: Colors.white)),
             ),
           ],
         ),
