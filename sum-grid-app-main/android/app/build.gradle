@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.sum_grid_app"
+    namespace "com.sumgrid.game"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
@@ -41,22 +41,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.sum_grid_app"
+        applicationId "com.sumgrid.game"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-        }
-    }
-}
-
-flutter {
-    source '../..'
-}
-
-dependencies {}
+        version
